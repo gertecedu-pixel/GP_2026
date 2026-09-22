@@ -1,0 +1,9 @@
+# Publicar somente o site e os arquivos básicos do repositório.
+# Code.gs, Excel, HTML original, instruções e ferramentas ficam locais.
+/*
+!/.gitignore
+!/README.md
+!/index.html
+!/inscricao.html
+!/inscricao.js
+!/config.js
