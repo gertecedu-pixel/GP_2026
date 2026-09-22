@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Validação das inscrições</title>
+<style>
+*{box-sizing:border-box}body{margin:0;background:#f4f7fa;color:#123858;font:14px Arial,sans-serif}header{padding:24px 28px;background:#062c54;color:white;border-bottom:4px solid #ff7900}h1{margin:0 0 10px;font-size:24px}header p{margin:0;color:#d7e4ef;line-height:1.6}main{padding:24px}button,input,select{font:inherit;border-radius:7px;min-height:42px}button{background:#062c54;color:white;padding:10px 16px;border:0;cursor:pointer}button:disabled{opacity:.5;cursor:wait}button:focus-visible,input:focus-visible,select:focus-visible{outline:3px solid #ff7900;outline-offset:2px}.toolbar{display:flex;gap:16px;align-items:end;flex-wrap:wrap}.toolbar label{display:grid;gap:7px;flex:1;min-width:170px}input,select{background:white;border:1px solid #bfccd8;padding:10px;width:100%;color:#123858}.message{padding:14px 0;line-height:1.6;min-height:50px}.error{color:#9e2424}.summary{display:flex;gap:12px;flex-wrap:wrap;margin:8px 0 18px}.summary span{background:white;border:1px solid #d9e3ec;border-radius:7px;padding:12px 16px}.table-wrap{overflow:auto;border:1px solid #d5e0ea;border-radius:8px;background:white;max-height:380px}table{width:100%;border-collapse:collapse;text-align:left;min-width:850px}th{position:sticky;top:0;background:#eaf0f6;font-size:12px;white-space:nowrap}th,td{padding:12px 14px;border-bottom:1px solid #e3eaf0;vertical-align:top}td{line-height:1.5}td:nth-child(5){text-align:right;white-space:nowrap}td small{display:block;color:#62768a;overflow-wrap:anywhere}footer{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-top:16px}.empty{padding:30px;text-align:center;color:#597086}.note{font-size:12px;color:#5d7184;line-height:1.6}.badge{font-size:12px;font-weight:bold;color:#23714c}header small{display:block;color:#ffb570;letter-spacing:.1em;margin-bottom:10px}
+</style></head><body>
+<header><small>GRAND PRIX SED 2026 · ORGANIZAÇÃO</small><h1>Validação das inscrições</h1><p>Aluno inscrito + carga horária acumulada maior que 20 horas. A conferência é individual, incluindo o líder.</p></header>
+<main><div class="toolbar"><label>Exibir<select id="status"><option value="VALIDADA">Inscrições validadas</option><option value="TODAS">Todas as inscrições</option><option value="HORAS_INSUFICIENTES">Até 20 horas</option><option value="PENDENTE">Pendências de identificação ou dados</option></select></label><label>Buscar aluno, RA ou equipe<input id="busca" type="search" placeholder="Digite para filtrar"></label><button id="recalcular">Recalcular validações</button></div>
+<p class="note">Recalcule após novas inscrições ou mudanças na base de cursos. Esta validação de horas não altera o campo de homologação manual.</p>
+<div id="mensagem" class="message" role="status" aria-live="polite">Carregando…</div><div id="resumo" class="summary"></div>
+<div class="table-wrap"><table><thead><tr><th>Aluno</th><th>RA</th><th>Equipe</th><th>Papel</th><th>Horas</th><th>Resultado</th><th>Conferência</th></tr></thead><tbody id="linhas"></tbody></table><div class="empty" id="vazio" hidden>Nenhuma inscrição encontrada neste filtro.</div></div>
+<footer><button id="anterior">Anterior</button><span id="pagina"></span><button id="proxima">Próxima</button></footer>
+<p class="note">Os resultados refletem a última atualização indicada acima. Cada linha representa um participante em uma inscrição. O mesmo aluno pode aparecer em mais de uma equipe.</p></main>
+<script>
+const $=id=>document.getElementById(id);let page=1,totalPages=1,busy=false,queryTimer;
+const controls=['status','busca','recalcular','anterior','proxima'];
+function loading(value){busy=value;controls.forEach(id=>$(id).disabled=value);if(!value){$('anterior').disabled=page<=1;$('proxima').disabled=page>=totalPages;}}
+function failure(e){$('mensagem').textContent=e.message||'Não foi possível acessar a validação.';$('mensagem').className='message error';$('linhas').replaceChildren();$('resumo').replaceChildren();$('pagina').textContent='';loading(false);}
+function render(data){
+  $('linhas').replaceChildren();$('resumo').replaceChildren();$('mensagem').className='message';
+  $('mensagem').textContent=data.atualizado_em?'Atualizado em '+new Date(data.atualizado_em).toLocaleString('pt-BR')+'. Use Recalcular para consultar os dados atuais.':'Nenhuma validação calculada. Clique em Recalcular validações.';
+  for(const [label,value] of [['Inscrições analisadas',data.resumo.total],['Validadas por horas',data.resumo.validadas],['Até 20 horas',data.resumo.insuficientes],['Pendências',data.resumo.pendentes]]){const span=document.createElement('span');span.textContent=label+': '+value;$('resumo').append(span);}
+  for(const row of data.linhas){const tr=document.createElement('tr');
+    for(const value of [row.nome,row.ra,row.equipe,row.papel,row.horas===null?'—':Number(row.horas).toLocaleString('pt-BR'),row.resultado,row.motivo]){const td=document.createElement('td');td.textContent=value;tr.append(td);}
+    const small=document.createElement('small');small.textContent=row.protocolo;tr.children[2].append(small);$('linhas').append(tr);
+  }
+  page=data.pagina;totalPages=Math.max(1,data.paginas);$('pagina').textContent='Página '+page+' de '+totalPages+' · '+data.total_filtrado+' registros';$('vazio').hidden=data.linhas.length>0;loading(false);
+}
+function list(){if(busy)return;loading(true);$('mensagem').textContent='Consultando resultados…';google.script.run.withSuccessHandler(render).withFailureHandler(failure).listarValidacoes({pagina:page,status:$('status').value,busca:$('busca').value});}
+$('recalcular').onclick=()=>{if(busy)return;loading(true);$('mensagem').textContent='Somando as horas e conferindo as inscrições…';google.script.run.withSuccessHandler(()=>{loading(false);page=1;list();}).withFailureHandler(failure).recalcularValidacoes();};
+$('status').onchange=()=>{page=1;list();};$('busca').oninput=()=>{clearTimeout(queryTimer);queryTimer=setTimeout(()=>{page=1;list();},350);};$('anterior').onclick=()=>{page--;list();};$('proxima').onclick=()=>{page++;list();};
+if(window.google?.script?.run){list();}else{failure({message:'Abra este painel pelo menu Grand Prix na planilha, com sua conta autorizada.'});controls.forEach(id=>$(id).disabled=true);}
+</script></body></html>

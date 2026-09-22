@@ -42,6 +42,7 @@ form.addEventListener('submit', async e => {
   const payload = {...fields, confirmacao_dados:form.elements.confirmacao_dados.checked,
     integrantes:[...document.querySelectorAll('#integrantes .member')].map(m => ({
       nome:m.querySelector('[data-field=nome]').value,
+      ra:m.querySelector('[data-field=ra]').value,
       email:m.querySelector('[data-field=email]').value,
       turma:m.querySelector('[data-field=turma]').value
     }))};
