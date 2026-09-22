@@ -20,7 +20,7 @@ document.querySelector('#adicionar').addEventListener('click', () => {
 });
 
 async function carregar() {
-  if (!/^https:\/\/script\.google\.com\/macros\/s\/[\w-]+\/exec$/.test(apiUrl)) {
+  if (!/^https:\/\/script\.google\.com\/(?:macros|a\/macros\/[a-zA-Z0-9.-]+)\/s\/[\w-]+\/exec$/.test(apiUrl)) {
     aviso('As inscrições ainda não estão disponíveis neste site. Tente novamente mais tarde.', true);
     return;
   }
