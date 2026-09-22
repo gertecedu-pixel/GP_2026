@@ -20,7 +20,8 @@ function render(data){
   $('mensagem').textContent=data.atualizado_em?'Atualizado em '+new Date(data.atualizado_em).toLocaleString('pt-BR')+'. Use Recalcular para consultar os dados atuais.':'Nenhuma validação calculada. Clique em Recalcular validações.';
   for(const [label,value] of [['Inscrições analisadas',data.resumo.total],['Validadas por horas',data.resumo.validadas],['Até 20 horas',data.resumo.insuficientes],['Pendências',data.resumo.pendentes]]){const span=document.createElement('span');span.textContent=label+': '+value;$('resumo').append(span);}
   for(const row of data.linhas){const tr=document.createElement('tr');
-    for(const value of [row.nome,row.ra,row.equipe,row.papel,row.horas===null?'—':Number(row.horas).toLocaleString('pt-BR'),row.resultado,row.motivo]){const td=document.createElement('td');td.textContent=value;tr.append(td);}
+    const horas=row.horas==null || String(row.horas).trim()==='' || !Number.isFinite(Number(row.horas)) ? '—' : Number(row.horas).toLocaleString('pt-BR');
+    for(const value of [row.nome,row.ra,row.equipe,row.papel,horas,row.resultado,row.motivo]){const td=document.createElement('td');td.textContent=value;tr.append(td);}
     const small=document.createElement('small');small.textContent=row.protocolo;tr.children[2].append(small);$('linhas').append(tr);
   }
   page=data.pagina;totalPages=Math.max(1,data.paginas);$('pagina').textContent='Página '+page+' de '+totalPages+' · '+data.total_filtrado+' registros';$('vazio').hidden=data.linhas.length>0;loading(false);
