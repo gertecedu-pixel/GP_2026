@@ -2,7 +2,7 @@
 
 1. Implante o backend no Google Apps Script como aplicativo da Web.
 2. Configure a URL da implantação, terminada em `/exec`, em `apiUrl` no arquivo `config.js`.
-3. Publique `index.html`, `inscricao.html`, `inscricao.js` e `config.js` na mesma pasta do repositório.
+3. Publique `index.html`, `inscricao.html`, `site.css`, `site.js`, `inscricao.js` e `config.js` na mesma pasta do repositório. Inclua a pasta `assets` com `corrida-ideias.gif` e `corrida-ideias.png`.
 4. Em **Settings > Pages**, selecione a branch e a pasta que contêm `index.html`.
 5. Abra o site publicado e verifique o carregamento das demandas e o envio de uma inscrição de teste.
 
