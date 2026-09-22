@@ -28,12 +28,10 @@ async function carregar() {
     const response = await fetch(apiUrl, {redirect:'follow'});
     const data = await response.json();
     if (!data.ok || !Array.isArray(data.demandas)) throw new Error(data.error || 'Serviço indisponível.');
-    const select = form.elements.demanda_id;
-    data.demandas.forEach(d => select.add(new Option(d.nome, d.id)));
     submit.disabled = false;
     message.hidden = true;
   } catch (_) {
-    aviso('Não foi possível carregar as demandas. Recarregue a página para tentar novamente.', true);
+    aviso('Não foi possível conectar ao serviço de inscrições. Recarregue a página para tentar novamente.', true);
   }
 }
 
