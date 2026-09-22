@@ -7,6 +7,18 @@ let requestId = crypto.randomUUID();
 let lastPayload = '';
 let lastSuccessfulId = '';
 
+async function consultarServico(options = {}) {
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), 60000);
+  try {
+    const response = await fetch(apiUrl, {...options, redirect:'follow', signal:controller.signal});
+    if (!response.ok) throw new Error('O serviço está indisponível. Tente novamente mais tarde.');
+    return await response.json();
+  } finally {
+    clearTimeout(timer);
+  }
+}
+
 function aviso(text, error = false) {
   message.textContent = text;
   message.className = error ? 'error' : 'aside-note';
@@ -25,8 +37,7 @@ async function carregar() {
     return;
   }
   try {
-    const response = await fetch(apiUrl, {redirect:'follow'});
-    const data = await response.json();
+    const data = await consultarServico();
     if (!data.ok || !Array.isArray(data.demandas)) throw new Error(data.error || 'Serviço indisponível.');
     submit.disabled = false;
     message.hidden = true;
@@ -56,17 +67,21 @@ form.addEventListener('submit', async e => {
   aviso('Aguarde a confirmação da inscrição.');
   try {
     // text/plain evita preflight; a resposta JSON precisa ser lida para confirmar.
-    const response = await fetch(apiUrl, {method:'POST',redirect:'follow',
+    const data = await consultarServico({method:'POST',
       headers:{'Content-Type':'text/plain;charset=utf-8'},
       body:JSON.stringify({...payload, request_id:requestId})});
-    const data = await response.json();
     if (!data.ok || !data.protocolo) throw new Error(data.error || 'Não foi possível confirmar o envio.');
     lastSuccessfulId = requestId;
     aviso('Inscrição recebida! Guarde seu protocolo: ' + data.protocolo + '. A inscrição ainda passará pela homologação da organização.');
     form.hidden = true;
     message.scrollIntoView({behavior:'smooth',block:'center'});
   } catch (err) {
+    if (err.name === 'AbortError') {
+      aviso('O serviço demorou para responder e não foi possível confirmar a inscrição. Tente enviar novamente nesta página, sem recarregar: o mesmo envio não será duplicado.', true);
+    } else {
     aviso(err instanceof TypeError ? 'A conexão falhou e não foi possível confirmar a inscrição. Tente enviar novamente: o mesmo envio não será duplicado.' : err.message, true);
+    }
+    message.scrollIntoView({behavior:'smooth',block:'center'});
   } finally {
     if (lastSuccessfulId !== requestId) inputs.forEach(el => el.disabled = false);
     submit.textContent = 'Inscrever equipe';
