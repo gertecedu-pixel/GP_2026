@@ -14,3 +14,8 @@
 /assets/*
 !/assets/corrida-ideias.gif
 !/assets/corrida-ideias.png
+
+!/home.css
+!/home.js
+!/assets/abertura-grand-prix.mp4
+!/assets/abertura-poster.jpg
