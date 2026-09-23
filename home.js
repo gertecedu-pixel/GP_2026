@@ -31,7 +31,7 @@ const menuButton = document.querySelector('.menu-toggle');
 const menu = document.querySelector('#main-nav');
 if (menuButton && menu) {
   document.querySelector('.header').classList.add('menu-ready');
-  const mobile = window.matchMedia('(max-width: 760px)');
+  const mobile = window.matchMedia('(max-width: 900px)');
   function closeMenu() {
     menu.classList.remove('is-open');
     menuButton.setAttribute('aria-expanded', 'false');
