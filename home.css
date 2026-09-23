@@ -15,4 +15,25 @@
 @media(min-width:901px) and (max-width:1200px){.header{padding-left:24px;padding-right:24px;gap:15px}.header-brands{gap:14px}.header-brands .brand{padding-left:14px;font-size:15px}.header .institutional-logo{padding:10px}.header .institutional-logo img{width:145px}.header nav{gap:13px;font-size:11px}}
 @media(max-width:900px){.header-brands{gap:13px}.header .institutional-logo{padding:8px 10px}.header .institutional-logo img{width:128px}.header-brands .brand{padding-left:13px;font-size:12px}.header-brands .brand small{font-size:7px;letter-spacing:1px}.header{column-gap:10px}.menu-toggle{font-size:11px;padding:7px 9px}}
 @media(max-width:420px){.header{padding-left:16px;padding-right:16px}.header-brands{gap:9px}.header-brands .brand{padding-left:9px;font-size:10px}.header .institutional-logo{padding:8px}.header .institutional-logo img{width:105px}.header-brands .brand small{font-size:6px;letter-spacing:.5px}.menu-toggle{font-size:10px;padding:7px}}
+/* Marcas oficiais brancas, sem placa de fundo. */
+.institutional-logo,.header .institutional-logo{background:transparent;padding:0;gap:16px}
+.institutional-logo .logo-senai,.header .institutional-logo .logo-senai{width:185px;height:auto}
+.institutional-logo .logo-fiems,.header .institutional-logo .logo-fiems{width:86px;height:auto}
+/* Reserva espaço para a faixa de informações na primeira tela. */
+.hero{min-height:min(620px,calc(100svh - 210px))}
+.hero-content{padding-top:24px;padding-bottom:18px}
+.hero-kicker{margin-top:22px}
+h1{font-size:clamp(40px,4.8vw,68px);margin-top:18px}
+.hero-description{margin-top:16px}
+.hero-actions{margin-top:22px}
+.hero-bottom{padding-top:12px;padding-bottom:14px}
+@media(max-width:1200px) and (min-width:901px){.header .institutional-logo{gap:10px}.header .institutional-logo .logo-senai{width:145px}.header .institutional-logo .logo-fiems{width:69px}}
+@media(max-width:900px){
+ .header .institutional-logo{gap:9px}.header .institutional-logo .logo-senai{width:128px}.header .institutional-logo .logo-fiems{width:57px}
+ .hero{min-height:0}.hero-content{padding-top:20px;padding-bottom:16px}.hero-kicker{margin-top:20px}
+ h1{font-size:clamp(34px,8.3vw,52px);margin-top:14px}.hero-description{font-size:13px;margin-top:14px;line-height:1.65}
+ .hero-actions{margin-top:18px;gap:8px 20px}.hero-actions .cta{padding:12px 20px}.hero-bottom{padding:10px 0}
+ .facts{padding-top:5px;padding-bottom:5px}.facts>div{padding:9px 0}.facts strong{font-size:14px}
+}
+@media(max-width:420px){.header .institutional-logo{gap:7px}.header .institutional-logo .logo-senai{width:105px}.header .institutional-logo .logo-fiems{width:48px}}
 @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}*,*:before,*:after{transition:none!important}}
