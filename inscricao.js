@@ -25,10 +25,21 @@ function aviso(text, error = false) {
   message.hidden = false;
 }
 
-document.querySelector('#adicionar').addEventListener('click', () => {
+// Até 4 integrantes além do líder.
+const MAX_INTEGRANTES = 4;
+const addButton = document.querySelector('#adicionar');
+const members = document.querySelector('#integrantes');
+function atualizarLimite() {
+  const full = members.querySelectorAll('.member').length >= MAX_INTEGRANTES;
+  addButton.hidden = full;
+  document.querySelector('#limite-integrantes').hidden = !full;
+}
+addButton.addEventListener('click', () => {
+  if (members.querySelectorAll('.member').length >= MAX_INTEGRANTES) return;
   const item = document.querySelector('#modelo-integrante').content.cloneNode(true);
-  item.querySelector('button').addEventListener('click', e => e.currentTarget.closest('.member').remove());
-  document.querySelector('#integrantes').append(item);
+  item.querySelector('button').addEventListener('click', e => { e.currentTarget.closest('.member').remove(); atualizarLimite(); });
+  members.append(item);
+  atualizarLimite();
 });
 
 async function carregar() {
@@ -54,8 +65,7 @@ form.addEventListener('submit', async e => {
     integrantes:[...document.querySelectorAll('#integrantes .member')].map(m => ({
       nome:m.querySelector('[data-field=nome]').value,
       ra:m.querySelector('[data-field=ra]').value,
-      email:m.querySelector('[data-field=email]').value,
-      turma:m.querySelector('[data-field=turma]').value
+      idade:m.querySelector('[data-field=idade]').value
     }))};
   const serialized = JSON.stringify(payload);
   if (lastPayload && lastPayload !== serialized) requestId = crypto.randomUUID();

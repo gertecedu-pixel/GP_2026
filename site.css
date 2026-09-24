@@ -135,3 +135,4 @@ main{min-width:0}
 .member .fields{margin-top:0}
 @media(max-width:900px){.form-section:not(.last){grid-template-columns:36px minmax(0,1fr);column-gap:14px}.form-section:not(.last)>.form-number{width:32px;height:32px;font-size:13px}}
 @media(max-width:640px){.fields{grid-template-columns:1fr}.field-full,.field-narrow{grid-column:auto;max-width:none}}
+.member-limit{margin-top:12px;font-size:13px;color:#8a4a00}
