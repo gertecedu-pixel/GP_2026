@@ -6,10 +6,21 @@ const apiUrl = window.GP_CONFIG?.apiUrl || '';
 let requestId = crypto.randomUUID();
 let lastPayload = '';
 let lastSuccessfulId = '';
+const ARQUIVO_MAX_BYTES = 8 * 1024 * 1024;
+const ARQUIVO_TIPOS = ['application/pdf', 'image/jpeg', 'image/png', 'image/webp'];
+
+function lerArquivo(file) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onerror = () => reject(new Error('Não foi possível ler o arquivo. Selecione-o novamente.'));
+    reader.onload = () => resolve({nome:file.name, tipo:file.type, base64:String(reader.result).split(',')[1] || ''});
+    reader.readAsDataURL(file);
+  });
+}
 
 async function consultarServico(options = {}) {
   const controller = new AbortController();
-  const timer = setTimeout(() => controller.abort(), 60000);
+  const timer = setTimeout(() => controller.abort(), 120000);
   try {
     const response = await fetch(apiUrl, {...options, redirect:'follow', signal:controller.signal});
     if (!response.ok) throw new Error('O serviço está indisponível. Tente novamente mais tarde.');
@@ -60,8 +71,14 @@ async function carregar() {
 form.addEventListener('submit', async e => {
   e.preventDefault();
   if (!form.reportValidity() || submit.disabled) return;
-  const fields = Object.fromEntries(new FormData(form));
-  const payload = {...fields, confirmacao_dados:form.elements.confirmacao_dados.checked,
+  const file = form.elements.arquivo.files[0];
+  if (!file) { aviso('Anexe o arquivo da inscrição (imagem ou PDF).', true); return; }
+  if (!ARQUIVO_TIPOS.includes(file.type)) { aviso('Formato de arquivo não aceito. Envie PDF, JPG, PNG ou WEBP.', true); return; }
+  if (file.size > ARQUIVO_MAX_BYTES) { aviso('O arquivo deve ter no máximo 8 MB.', true); return; }
+  const {arquivo: _, ...fields} = Object.fromEntries(new FormData(form));
+  let arquivo;
+  try { arquivo = await lerArquivo(file); } catch (err) { aviso(err.message, true); return; }
+  const payload = {...fields, arquivo, confirmacao_dados:form.elements.confirmacao_dados.checked,
     integrantes:[...document.querySelectorAll('#integrantes .member')].map(m => ({
       nome:m.querySelector('[data-field=nome]').value,
       ra:m.querySelector('[data-field=ra]').value,

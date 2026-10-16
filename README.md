@@ -9,3 +9,9 @@
 A planilha de dados deve permanecer restrita à organização. Não publique credenciais, dados de inscritos ou arquivos internos no repositório. A URL do aplicativo da Web em `config.js` é pública e não deve ser usada como senha ou segredo.
 
 O topo da página usa o banner do folder. O vídeo do GP fica na seção de demandas, sem áudio e em loop enquanto está visível, com botão para pausar. Com redução de movimento ou economia de dados ativada, o vídeo só é carregado mediante ação do visitante. O cronograma é exibido em calendário (outubro e novembro de 2026). Os estilos da página inicial ficam em `home.css`; o formulário continua usando `site.css`.
+
+## Arquivo da inscrição
+
+O formulário exige um arquivo (PDF, JPG, PNG ou WEBP, até 8 MB). Depois de validar a inscrição, o `Code.gs` cria na pasta do projeto no Drive (`GP_PASTA_ID`) uma subpasta `<equipe> - <protocolo>` com o arquivo nomeado com o nome do líder. Se a gravação na planilha falhar, a subpasta é descartada.
+
+Na aba `Inscricoes`, na linha do líder de cada equipe: a coluna AB (`arquivo_url`) traz o link clicável do arquivo e a coluna AC (`arquivo_conferido`) é uma lista (`Pendente`, `Correto`, `Incorreto`) para a conferência manual. Ao atualizar o Apps Script, execute `configurar` para criar os cabeçalhos AB e AC e autorizar o acesso ao Drive; depois publique uma nova versão da implantação.
