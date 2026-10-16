@@ -9,6 +9,15 @@ let lastSuccessfulId = '';
 const ARQUIVO_MAX_BYTES = 8 * 1024 * 1024;
 const ARQUIVO_TIPOS = ['application/pdf', 'image/jpeg', 'image/png', 'image/webp'];
 
+// O arquivo é obrigatório somente se o líder ou algum integrante for menor de 18 anos.
+const arquivoInput = document.querySelector('#arquivo');
+function existeMenor() {
+  return [...document.querySelectorAll('#lider_idade, #integrantes [data-field=idade]')]
+    .some(el => el.value !== '' && Number(el.value) < 18);
+}
+function atualizarArquivoObrigatorio() { arquivoInput.required = existeMenor(); }
+document.addEventListener('input', event => { if (event.target.matches('#lider_idade, [data-field=idade]')) atualizarArquivoObrigatorio(); });
+
 function lerArquivo(file) {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
@@ -48,7 +57,7 @@ function atualizarLimite() {
 addButton.addEventListener('click', () => {
   if (members.querySelectorAll('.member').length >= MAX_INTEGRANTES) return;
   const item = document.querySelector('#modelo-integrante').content.cloneNode(true);
-  item.querySelector('button').addEventListener('click', e => { e.currentTarget.closest('.member').remove(); atualizarLimite(); });
+  item.querySelector('button').addEventListener('click', e => { e.currentTarget.closest('.member').remove(); atualizarLimite(); atualizarArquivoObrigatorio(); });
   members.append(item);
   atualizarLimite();
 });
@@ -72,16 +81,15 @@ form.addEventListener('submit', async e => {
   e.preventDefault();
   if (!form.reportValidity() || submit.disabled) return;
   const file = form.elements.arquivo.files[0];
-  if (!file) { aviso('Anexe o arquivo da inscrição (imagem ou PDF).', true); return; }
-  if (!ARQUIVO_TIPOS.includes(file.type)) { aviso('Formato de arquivo não aceito. Envie PDF, JPG, PNG ou WEBP.', true); return; }
-  if (file.size > ARQUIVO_MAX_BYTES) { aviso('O arquivo deve ter no máximo 8 MB.', true); return; }
+  if (!file && existeMenor()) { aviso('Anexe o arquivo da inscrição (imagem ou PDF): é obrigatório quando há participante menor de 18 anos.', true); return; }
+  if (file && !ARQUIVO_TIPOS.includes(file.type)) { aviso('Formato de arquivo não aceito. Envie PDF, JPG, PNG ou WEBP.', true); return; }
+  if (file && file.size > ARQUIVO_MAX_BYTES) { aviso('O arquivo deve ter no máximo 8 MB.', true); return; }
   const {arquivo: _, ...fields} = Object.fromEntries(new FormData(form));
-  let arquivo;
-  try { arquivo = await lerArquivo(file); } catch (err) { aviso(err.message, true); return; }
+  let arquivo = null;
+  try { if (file) arquivo = await lerArquivo(file); } catch (err) { aviso(err.message, true); return; }
   const payload = {...fields, arquivo, confirmacao_dados:form.elements.confirmacao_dados.checked,
     integrantes:[...document.querySelectorAll('#integrantes .member')].map(m => ({
       nome:m.querySelector('[data-field=nome]').value,
-      ra:m.querySelector('[data-field=ra]').value,
       idade:m.querySelector('[data-field=idade]').value
     }))};
   const serialized = JSON.stringify(payload);
