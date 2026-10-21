@@ -9,14 +9,15 @@ let lastSuccessfulId = '';
 const ARQUIVO_MAX_BYTES = 8 * 1024 * 1024;
 const ARQUIVO_TIPOS = ['application/pdf'];
 
-// O arquivo é obrigatório somente se o líder ou algum integrante for menor de 18 anos.
+const ARQUIVOS_MAX = 10;
+const ARQUIVOS_TOTAL_MAX_BYTES = 20 * 1024 * 1024;
 const arquivoInput = document.querySelector('#arquivo');
-function existeMenor() {
-  return [...document.querySelectorAll('#lider_idade, #integrantes [data-field=idade]')]
-    .some(el => el.value !== '' && Number(el.value) < 18);
+const arquivoLista = document.querySelector('#arquivo-lista');
+function atualizarListaArquivos() {
+  const files = [...arquivoInput.files];
+  arquivoLista.textContent = files.length ? files.map(f => f.name + ' (' + (f.size / 1048576).toFixed(2) + ' MB)').join(' · ') : 'Nenhum arquivo selecionado.';
 }
-function atualizarArquivoObrigatorio() { arquivoInput.required = existeMenor(); }
-document.addEventListener('input', event => { if (event.target.matches('#lider_idade, [data-field=idade]')) atualizarArquivoObrigatorio(); });
+arquivoInput.addEventListener('change', atualizarListaArquivos);
 
 function lerArquivo(file) {
   return new Promise((resolve, reject) => {
@@ -57,7 +58,7 @@ function atualizarLimite() {
 addButton.addEventListener('click', () => {
   if (members.querySelectorAll('.member').length >= MAX_INTEGRANTES) return;
   const item = document.querySelector('#modelo-integrante').content.cloneNode(true);
-  item.querySelector('button').addEventListener('click', e => { e.currentTarget.closest('.member').remove(); atualizarLimite(); atualizarArquivoObrigatorio(); });
+  item.querySelector('button').addEventListener('click', e => { e.currentTarget.closest('.member').remove(); atualizarLimite(); });
   members.append(item);
   atualizarLimite();
 });
@@ -80,14 +81,16 @@ async function carregar() {
 form.addEventListener('submit', async e => {
   e.preventDefault();
   if (!form.reportValidity() || submit.disabled) return;
-  const file = form.elements.arquivo.files[0];
-  if (!file && existeMenor()) { aviso('Anexe o arquivo da inscrição (PDF): é obrigatório quando há participante menor de 18 anos.', true); return; }
-  if (file && !ARQUIVO_TIPOS.includes(file.type)) { aviso('Formato de arquivo não aceito. Envie um PDF.', true); return; }
-  if (file && file.size > ARQUIVO_MAX_BYTES) { aviso('O arquivo deve ter no máximo 8 MB.', true); return; }
+  const files = [...arquivoInput.files];
+  if (!files.length) { aviso('Anexe o arquivo da inscrição (PDF): é obrigatório para todos os participantes.', true); return; }
+  if (files.length > ARQUIVOS_MAX) { aviso('Envie no máximo ' + ARQUIVOS_MAX + ' arquivos PDF.', true); return; }
+  if (files.some(f => !ARQUIVO_TIPOS.includes(f.type) || !/\.pdf$/i.test(f.name))) { aviso('Formato de arquivo não aceito. Envie somente PDF.', true); return; }
+  if (files.some(f => f.size === 0 || f.size > ARQUIVO_MAX_BYTES)) { aviso('Cada arquivo deve ter no máximo 8 MB.', true); return; }
+  if (files.reduce((t, f) => t + f.size, 0) > ARQUIVOS_TOTAL_MAX_BYTES) { aviso('O total dos arquivos deve ter no máximo 20 MB.', true); return; }
   const {arquivo: _, ...fields} = Object.fromEntries(new FormData(form));
-  let arquivo = null;
-  try { if (file) arquivo = await lerArquivo(file); } catch (err) { aviso(err.message, true); return; }
-  const payload = {...fields, arquivo, confirmacao_dados:form.elements.confirmacao_dados.checked,
+  let arquivos;
+  try { arquivos = await Promise.all(files.map(lerArquivo)); } catch (err) { aviso(err.message, true); return; }
+  const payload = {...fields, arquivos, confirmacao_dados:form.elements.confirmacao_dados.checked,
     integrantes:[...document.querySelectorAll('#integrantes .member')].map(m => ({
       nome:m.querySelector('[data-field=nome]').value,
       idade:m.querySelector('[data-field=idade]').value
