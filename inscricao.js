@@ -7,7 +7,7 @@ let requestId = crypto.randomUUID();
 let lastPayload = '';
 let lastSuccessfulId = '';
 const ARQUIVO_MAX_BYTES = 8 * 1024 * 1024;
-const ARQUIVO_TIPOS = ['application/pdf', 'image/jpeg', 'image/png', 'image/webp'];
+const ARQUIVO_TIPOS = ['application/pdf'];
 
 // O arquivo é obrigatório somente se o líder ou algum integrante for menor de 18 anos.
 const arquivoInput = document.querySelector('#arquivo');
@@ -81,8 +81,8 @@ form.addEventListener('submit', async e => {
   e.preventDefault();
   if (!form.reportValidity() || submit.disabled) return;
   const file = form.elements.arquivo.files[0];
-  if (!file && existeMenor()) { aviso('Anexe o arquivo da inscrição (imagem ou PDF): é obrigatório quando há participante menor de 18 anos.', true); return; }
-  if (file && !ARQUIVO_TIPOS.includes(file.type)) { aviso('Formato de arquivo não aceito. Envie PDF, JPG, PNG ou WEBP.', true); return; }
+  if (!file && existeMenor()) { aviso('Anexe o arquivo da inscrição (PDF): é obrigatório quando há participante menor de 18 anos.', true); return; }
+  if (file && !ARQUIVO_TIPOS.includes(file.type)) { aviso('Formato de arquivo não aceito. Envie um PDF.', true); return; }
   if (file && file.size > ARQUIVO_MAX_BYTES) { aviso('O arquivo deve ter no máximo 8 MB.', true); return; }
   const {arquivo: _, ...fields} = Object.fromEntries(new FormData(form));
   let arquivo = null;
