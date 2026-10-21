@@ -61,8 +61,10 @@ function validar() {
     document.querySelector('#' + nome + '-estado').textContent = f ? f.name + ' · ' + (f.size / 1048576).toFixed(2) + ' MB' + (ok ? '' : ' · arquivo inválido') : 'Nenhum arquivo selecionado.';
   }
   const pronto = form.checkValidity();
+  const rotulos = {equipe:'Nome da escuderia', lider_nome:'Nome do líder', lider_email:'E-mail do líder', lider_telefone:'Contato do líder', demanda_id:'Demanda industrial', link1:'Link 1', link2:'Link 2', arquivo1:'Arquivo 1', arquivo2:'Arquivo 2', confirmacao_dados:'Declaração'};
+  const faltando = Object.keys(rotulos).filter(nome => !form.elements[nome].checkValidity()).map(nome => rotulos[nome]);
   submit.disabled = ocupado || enviado || !servicoPronto || !pronto;
-  hint.textContent = pronto ? 'Tudo preenchido. Revise os dados e finalize a submissão.' : 'Preencha todos os campos, inclua os dois links e os dois arquivos e marque a declaração.';
+  hint.textContent = pronto ? 'Tudo preenchido. Revise os dados e finalize a submissão.' : 'Todos os campos são obrigatórios. Falta: ' + faltando.join(', ') + '.';
   return pronto;
 }
 form.addEventListener('input', () => { if (!ocupado) validar(); });
