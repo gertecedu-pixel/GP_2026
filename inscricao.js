@@ -9,7 +9,9 @@ let lastSuccessfulId = '';
 const ARQUIVO_MAX_BYTES = 8 * 1024 * 1024;
 const ARQUIVO_TIPOS = ['application/pdf'];
 
-const ARQUIVOS_MAX = 10;
+// Um PDF por participante: de 4 a 5 arquivos.
+const ARQUIVOS_MIN = 4;
+const ARQUIVOS_MAX = 5;
 const ARQUIVOS_TOTAL_MAX_BYTES = 20 * 1024 * 1024;
 const arquivoInput = document.querySelector('#arquivo');
 const arquivoLista = document.querySelector('#arquivo-lista');
@@ -99,8 +101,7 @@ form.addEventListener('submit', async e => {
     return;
   }
   const files = [...arquivoInput.files];
-  if (!files.length) { aviso('Anexe o arquivo da inscrição (PDF): é obrigatório para todos os participantes.', true); return; }
-  if (files.length > ARQUIVOS_MAX) { aviso('Envie no máximo ' + ARQUIVOS_MAX + ' arquivos PDF.', true); return; }
+  if (files.length < ARQUIVOS_MIN || files.length > ARQUIVOS_MAX) { aviso('Envie de ' + ARQUIVOS_MIN + ' a ' + ARQUIVOS_MAX + ' arquivos PDF (um por participante). Você selecionou ' + files.length + '.', true); message.scrollIntoView({behavior:'smooth',block:'center'}); return; }
   if (files.some(f => !ARQUIVO_TIPOS.includes(f.type) || !/\.pdf$/i.test(f.name))) { aviso('Formato de arquivo não aceito. Envie somente PDF.', true); return; }
   if (files.some(f => f.size === 0 || f.size > ARQUIVO_MAX_BYTES)) { aviso('Cada arquivo deve ter no máximo 8 MB.', true); return; }
   if (files.reduce((t, f) => t + f.size, 0) > ARQUIVOS_TOTAL_MAX_BYTES) { aviso('O total dos arquivos deve ter no máximo 20 MB.', true); return; }
