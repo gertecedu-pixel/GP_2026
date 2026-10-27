@@ -17,7 +17,9 @@ const arquivoInput = document.querySelector('#arquivo');
 const arquivoLista = document.querySelector('#arquivo-lista');
 function atualizarListaArquivos() {
   const files = [...arquivoInput.files];
-  arquivoLista.textContent = files.length ? files.map(f => f.name + ' (' + (f.size / 1048576).toFixed(2) + ' MB)').join(' · ') : 'Nenhum arquivo selecionado.';
+  const esperado = members.querySelectorAll('.member').length + 1;
+  const lista = files.length ? files.map(f => f.name + ' (' + (f.size / 1048576).toFixed(2) + ' MB)').join(' · ') : 'Nenhum arquivo selecionado.';
+  arquivoLista.textContent = lista + ' — ' + files.length + ' de ' + esperado + ' arquivos (um por participante).';
 }
 arquivoInput.addEventListener('change', atualizarListaArquivos);
 
@@ -55,6 +57,7 @@ const MIN_INTEGRANTES = 3;
 const addButton = document.querySelector('#adicionar');
 const members = document.querySelector('#integrantes');
 function atualizarMinimo() {
+  atualizarListaArquivos();
   const total = members.querySelectorAll('.member').length;
   const aviso = document.querySelector('#minimo-integrantes');
   aviso.textContent = total >= MIN_INTEGRANTES
@@ -101,7 +104,8 @@ form.addEventListener('submit', async e => {
     return;
   }
   const files = [...arquivoInput.files];
-  if (files.length < ARQUIVOS_MIN || files.length > ARQUIVOS_MAX) { aviso('Envie de ' + ARQUIVOS_MIN + ' a ' + ARQUIVOS_MAX + ' arquivos PDF (um por participante). Você selecionou ' + files.length + '.', true); message.scrollIntoView({behavior:'smooth',block:'center'}); return; }
+  const participantes = members.querySelectorAll('.member').length + 1;
+  if (files.length !== participantes) { aviso('Envie um PDF por participante: a equipe tem ' + participantes + ' participantes, então são ' + participantes + ' arquivos. Você selecionou ' + files.length + '.', true); message.scrollIntoView({behavior:'smooth',block:'center'}); return; }
   if (files.some(f => !ARQUIVO_TIPOS.includes(f.type) || !/\.pdf$/i.test(f.name))) { aviso('Formato de arquivo não aceito. Envie somente PDF.', true); return; }
   if (files.some(f => f.size === 0 || f.size > ARQUIVO_MAX_BYTES)) { aviso('Cada arquivo deve ter no máximo 8 MB.', true); return; }
   if (files.reduce((t, f) => t + f.size, 0) > ARQUIVOS_TOTAL_MAX_BYTES) { aviso('O total dos arquivos deve ter no máximo 20 MB.', true); return; }

@@ -12,7 +12,7 @@ O topo da página usa o banner do folder. O vídeo do GP fica na seção de dema
 
 ## Arquivo da inscrição
 
-A equipe tem de 4 a 5 participantes (o líder e de 3 a 4 integrantes). Os arquivos (somente PDF, de 4 a 5 arquivos, um por participante, até 8 MB cada e 20 MB no total) são obrigatórios para todos os participantes, maiores e menores de 18 anos (Termo do Anexo III para menores, Anexo IV para maiores). O formulário não pede mais o RA (a coluna Z continua na planilha, vazia). Depois de validar a inscrição, o `Code.gs` cria na pasta do projeto no Drive (`GP_PASTA_ID`) uma subpasta `<equipe> - <protocolo>` com os PDFs; o primeiro leva o nome do líder. Se a gravação na planilha falhar, a subpasta é descartada.
+A equipe tem de 4 a 5 participantes (o líder e de 3 a 4 integrantes). Os arquivos (somente PDF, um por participante: a quantidade de arquivos é igual à de participantes, de 4 a 5, até 8 MB cada e 20 MB no total) são obrigatórios para todos os participantes, maiores e menores de 18 anos (Termo do Anexo III para menores, Anexo IV para maiores). O formulário não pede mais o RA (a coluna Z continua na planilha, vazia). Depois de validar a inscrição, o `Code.gs` cria na pasta do projeto no Drive (`GP_PASTA_ID`) uma subpasta `<equipe> - <protocolo>` com os PDFs; o primeiro leva o nome do líder. Se a gravação na planilha falhar, a subpasta é descartada.
 
 Na aba `Inscricoes`, na linha do líder de cada equipe: a coluna AB (`arquivo_url`) traz o link clicável do arquivo e a coluna AC (`arquivo_conferido`) é uma lista (`Pendente`, `Correto`, `Incorreto`) para a conferência manual. Ao atualizar o Apps Script, execute `configurar` para criar os cabeçalhos AB e AC e autorizar o acesso ao Drive; depois publique uma nova versão da implantação.
 
