@@ -48,9 +48,19 @@ function aviso(text, error = false) {
 
 // Até 4 integrantes além do líder.
 const MAX_INTEGRANTES = 4;
+// A equipe precisa de no mínimo 4 participantes: o líder e pelo menos 3 integrantes.
+const MIN_INTEGRANTES = 3;
 const addButton = document.querySelector('#adicionar');
 const members = document.querySelector('#integrantes');
+function atualizarMinimo() {
+  const total = members.querySelectorAll('.member').length;
+  const aviso = document.querySelector('#minimo-integrantes');
+  aviso.textContent = total >= MIN_INTEGRANTES
+    ? 'Equipe com ' + (total + 1) + ' participantes (líder + ' + total + ' integrantes). Mínimo atendido.'
+    : 'Faltam ' + (MIN_INTEGRANTES - total) + ' integrante(s): a equipe precisa de no mínimo 4 participantes (líder + 3 integrantes). Participantes até agora: ' + (total + 1) + '.';
+}
 function atualizarLimite() {
+  atualizarMinimo();
   const full = members.querySelectorAll('.member').length >= MAX_INTEGRANTES;
   addButton.hidden = full;
   document.querySelector('#limite-integrantes').hidden = !full;
@@ -62,6 +72,8 @@ addButton.addEventListener('click', () => {
   members.append(item);
   atualizarLimite();
 });
+
+atualizarMinimo();
 
 async function carregar() {
   if (!/^https:\/\/script\.google\.com\/(?:macros|a\/macros\/[a-zA-Z0-9.-]+)\/s\/[\w-]+\/exec$/.test(apiUrl)) {
@@ -81,6 +93,11 @@ async function carregar() {
 form.addEventListener('submit', async e => {
   e.preventDefault();
   if (!form.reportValidity() || submit.disabled) return;
+  if (members.querySelectorAll('.member').length < MIN_INTEGRANTES) {
+    aviso('A equipe precisa ter no mínimo 4 participantes: o líder e pelo menos 3 integrantes. Adicione os integrantes que faltam.', true);
+    message.scrollIntoView({behavior:'smooth',block:'center'});
+    return;
+  }
   const files = [...arquivoInput.files];
   if (!files.length) { aviso('Anexe o arquivo da inscrição (PDF): é obrigatório para todos os participantes.', true); return; }
   if (files.length > ARQUIVOS_MAX) { aviso('Envie no máximo ' + ARQUIVOS_MAX + ' arquivos PDF.', true); return; }
